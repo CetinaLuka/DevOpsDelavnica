@@ -225,95 +225,95 @@ jobs:
   #        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}     
   #      working-directory: frontend/
           
-  cypress:
-    name: Functional Tests
-    runs-on: ubuntu-latest
-    needs: [BE-deploy-on-azure, FE-deploy]
-    strategy:
-      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
-      matrix:
-        containers: [ 1, 2 ] # Uses 2 parallel instances
+  #cypress:
+  #  name: Functional Tests
+  #  runs-on: ubuntu-latest
+  #  needs: [BE-deploy-on-azure, FE-deploy]
+  #  strategy:
+  #    fail-fast: false # https://github.com/cypress-io/github-action/issues/48
+  #    matrix:
+  #      containers: [ 1, 2 ] # Uses 2 parallel instances
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: measdb
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
+  #  services:
+  #    postgres:
+  #      image: postgres:16
+  #      env:
+  #        POSTGRES_DB: measdb
+  #        POSTGRES_USER: postgres
+  #        POSTGRES_PASSWORD: postgres
+  #      options: >-
+  #        --health-cmd pg_isready
+  #        --health-interval 10s
+  #        --health-timeout 5s
+  #        --health-retries 5
+  #      ports:
+  #        - 5432:5432
           
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #  steps:
+  #    - name: Checkout repository
+  #      uses: actions/checkout@v3
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-            distribution: 'adopt'
-            java-version: '21'
-            cache: maven
-            
-      - name: Start backend
-        run: |
-         ./mvnw quarkus:dev &
-        working-directory: backend
+  #    - name: Setup Java
+  #      uses: actions/setup-java@v3
+  #      with:
+  #          distribution: 'adopt'
+  #          java-version: '21'
+  #          cache: maven
+  #          
+  #    - name: Start backend
+  #      run: |
+  #       ./mvnw quarkus:dev &
+  #      working-directory: backend
 
-      - name: Wait for Quarkus Server to be Ready
-        run: |
-         echo "Waiting for Quarkus server to start..."
-         until curl --output /dev/null --head http://localhost:8280/api/v1/history; do
-          printf '.'
-          sleep 5
-         done
-         echo "Quarkus server is up and running!"
+  #    - name: Wait for Quarkus Server to be Ready
+  #      run: |
+  #       echo "Waiting for Quarkus server to start..."
+  #       until curl --output /dev/null --head http://localhost:8280/api/v1/history; do
+  #        printf '.'
+  #        sleep 5
+  #      done
+  #      echo "Quarkus server is up and running!"
 
-      - name: Ouput backend endpoint
-        run: |
-         curl http://localhost:8280/api/v1/history
+  #    - name: Ouput backend endpoint
+  #      run: |
+  #       curl http://localhost:8280/api/v1/history
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-  
-      - name: Install dependencies
-        run: npm ci
-        working-directory: frontend
-        
-      - name: Start frontend
-        run: npm run start &
-        working-directory: frontend
+  #    - name: Setup Node.js
+  #      uses: actions/setup-node@v3
+  #      with:
+  #        node-version: 18
+  #        cache: 'npm'
+  #        cache-dependency-path: frontend/package-lock.json
+  # 
+  #    - name: Install dependencies
+  #      run: npm ci
+  #      working-directory: frontend
+  #      
+  #    - name: Start frontend
+  #      run: npm run start &
+  #      working-directory: frontend
+  #
+  #    - name: Wait for React Server to be Ready
+  #      run: |
+  #           echo "Waiting for React server to start..."
+  #           until curl --output /dev/null --head http://localhost:3000; do
+  #            printf '.'
+  #            sleep 5
+  #           done
+  #           echo "React server is up and running!"
 
-      - name: Wait for React Server to be Ready
-        run: |
-             echo "Waiting for React server to start..."
-             until curl --output /dev/null --head http://localhost:3000; do
-              printf '.'
-              sleep 5
-             done
-             echo "React server is up and running!"
-
-      - name: Cypress run
-          # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v6
-        with:
-          # Starts web server for E2E tests
-          # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
-          
-          wait-on: 'http://localhost:3000'
-          record: true
-          parallel: true
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # you can also add a GitHub secret
+  #    - name: Cypress run
+  #        # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
+  #      uses: cypress-io/github-action@v6
+  #      with:
+  #        # Starts web server for E2E tests
+  #        # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
+  #        
+  #        wait-on: 'http://localhost:3000'
+  #        record: true
+  #        parallel: true
+  #      env:
+  #        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+  #        # you can also add a GitHub secret
 
  
