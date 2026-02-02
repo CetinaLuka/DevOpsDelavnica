@@ -48,41 +48,41 @@ jobs:
           path: backend/target
   
     BE-static-code-analysis:
-    name: BE SonarQube Analysis
-    runs-on: ubuntu-latest
-    needs: [BE-build-test-package]
-  
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-  
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '21'
-          cache: maven
-  
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+      name: BE SonarQube Analysis
+      runs-on: ubuntu-latest
+      needs: [BE-build-test-package]
+    
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+    
+        - name: Setup Java
+          uses: actions/setup-java@v3
+          with:
+            distribution: 'adopt'
+            java-version: '21'
+            cache: maven
+    
+        - name: Cache SonarCloud packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.sonar/cache
+            key: ${{ runner.os }}-sonar
+            restore-keys: ${{ runner.os }}-sonar
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+        - name: Cache Maven packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CetinaLuka_DevOpsDelavnica_d85aa944-01ca-434e-9066-e9856bbbefda -Dsonar.projectName='DevOpsDelavnica' -DskipTests=true
-        working-directory: backend/
+        - name: Build and analyze
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CetinaLuka_DevOpsDelavnica_d85aa944-01ca-434e-9066-e9856bbbefda -Dsonar.projectName='DevOpsDelavnica' -DskipTests=true
+          working-directory: backend/
 
   BE-docker-image-delivery:
     name: BE Docker Image Delivery
