@@ -244,28 +244,28 @@ jobs:
 
       - name: Setup Java
         uses: actions/setup-java@v3
-       with:
-            distribution: 'adopt'
-            java-version: '21'
-           cache: maven
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+          cache: maven
             
       - name: Start backend
         run: |
-         ./mvnw quarkus:dev &
+          ./mvnw quarkus:dev &
         working-directory: backend
 
       - name: Wait for Quarkus Server to be Ready
         run: |
-         echo "Waiting for Quarkus server to start..."
-         until curl --output /dev/null --head http://localhost:8280/api/v1/history; do
-          printf '.'
-          sleep 5
-        done
-        echo "Quarkus server is up and running!"
+          echo "Waiting for Quarkus server to start..."
+          until curl --output /dev/null --head http://localhost:8280/api/v1/history; do
+            printf '.'
+            sleep 5
+          done
+          echo "Quarkus server is up and running!"
 
       - name: Ouput backend endpoint
         run: |
-         curl http://localhost:8280/api/v1/history
+          curl http://localhost:8280/api/v1/history
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -284,15 +284,15 @@ jobs:
   
       - name: Wait for React Server to be Ready
         run: |
-             echo "Waiting for React server to start..."
-             until curl --output /dev/null --head http://localhost:3000; do
-              printf '.'
-              sleep 5
-             done
-             echo "React server is up and running!"
+          echo "Waiting for React server to start..."
+          until curl --output /dev/null --head http://localhost:3000; do
+            printf '.'
+            sleep 5
+          done
+          echo "React server is up and running!"
 
       - name: Cypress run
-          # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
+        # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
         uses: cypress-io/github-action@v6
         with:
           # Starts web server for E2E tests
