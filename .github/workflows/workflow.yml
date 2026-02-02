@@ -172,6 +172,8 @@ jobs:
           uses: SonarSource/sonarqube-scan-action@v6
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
+          with:
+            projectBaseDir: frontend/
     
   FE-docker-image-delivery:
     name: FE Docker Image Delivery
