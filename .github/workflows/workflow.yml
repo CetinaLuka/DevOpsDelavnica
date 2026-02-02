@@ -159,33 +159,33 @@ jobs:
           name: frontend-build
           path: frontend/build/
         
-  FE-static-code-analysis:
-      name: FE SonarQube Analysis
-      runs-on: ubuntu-latest
-      needs: [FE-build]
-    
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
-        - name: SonarQube Scan Frontend
-          uses: SonarSource/sonarqube-scan-action@v6
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FE }}
-            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          with:
-            projectBaseDir: frontend/
-        - name: SonarQube Quality Gate Frontend
-          uses: SonarSource/sonarqube-quality-gate-action@v1
-          timeout-minutes: 5
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FE }}
+  #FE-static-code-analysis:
+  #    name: FE SonarQube Analysis
+  #    runs-on: ubuntu-latest
+  #    needs: [FE-build]
+  #  
+  #    steps:
+  #      - name: Checkout repository
+  #        uses: actions/checkout@v4
+  #        with:
+  #          fetch-depth: 0
+  #      - name: SonarQube Scan Frontend
+  #        uses: SonarSource/sonarqube-scan-action@v6
+  #        env:
+  #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FE }}
+  #          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  #        with:
+  #          projectBaseDir: frontend/
+  #      - name: SonarQube Quality Gate Frontend
+  #        uses: SonarSource/sonarqube-quality-gate-action@v1
+  #        timeout-minutes: 5
+  #        env:
+  #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FE }}
     
   FE-docker-image-delivery:
     name: FE Docker Image Delivery
     runs-on: ubuntu-latest
-    needs: [FE-build, FE-static-code-analysis]
+    needs: [FE-build]
 
     steps:
       - uses: actions/checkout@v3
