@@ -251,11 +251,16 @@ jobs:
       - name: Wait for Quarkus Server to be Ready
         run: |
           echo "Waiting for Quarkus server to start..."
-          until curl --output /dev/null --head http://localhost:8280/api/v1/history; do
+          for i in {1..60}; do
+            if curl -s -f http://localhost:8280/api/v1/history > /dev/null; then
+              echo "Quarkus server is up and running!"
+              exit 0
+            fi
             printf '.'
             sleep 5
           done
-          echo "Quarkus server is up and running!"
+          echo "Timeout waiting for Quarkus server to start"
+          exit 1
 
       - name: Ouput backend endpoint
         run: |
