@@ -47,45 +47,7 @@ jobs:
           name: Package
           path: backend/target
   
-  BE-docker-image-delivery:
-    name: BE Docker Image Delivery
-    runs-on: ubuntu-latest
-    needs: BE-build-test-package
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: Package
-          path: backend/target/
-
-      - name: Generate image tag
-        id: date
-        run: echo "::set-output name=date::$(date +%Y%m%d-%H%M%S)"
-
-      - name: Docker build
-        run: docker build -t lukacetina/devops-frontend:$TAG_NAME -f backend/src/main/docker/Dockerfile.jvm ./backend
-        env:
-          TAG_NAME: CD-${{ steps.date.outputs.date }}
-
-      - name: Retag to latest
-        run: docker tag lukacetina/devops-frontend:$TAG_NAME lukacetina/devops-frontend:latest
-        env:
-          TAG_NAME: CD-${{ steps.date.outputs.date }}
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASS }}
-
-      - name: Docker push
-        run: docker push lukacetina/devops-frontend:$TAG_NAME && docker push lukacetina/devops-frontend:latest
-        env:
-          TAG_NAME: CD-${{ steps.date.outputs.date }}
-
-  BE-static-code-analysis:
+    BE-static-code-analysis:
     name: BE SonarQube Analysis
     runs-on: ubuntu-latest
     needs: [BE-build-test-package]
@@ -121,6 +83,45 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CetinaLuka_DevOpsDelavnica_d85aa944-01ca-434e-9066-e9856bbbefda -Dsonar.projectName='DevOpsDelavnica' -DskipTests=true
         working-directory: backend/
+
+  BE-docker-image-delivery:
+    name: BE Docker Image Delivery
+    runs-on: ubuntu-latest
+    needs: [BE-build-test-package, BE-static-code-analysis]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Package
+          path: backend/target/
+
+      - name: Generate image tag
+        id: date
+        run: echo "::set-output name=date::$(date +%Y%m%d-%H%M%S)"
+
+      - name: Docker build
+        run: docker build -t lukacetina/devops-backend:$TAG_NAME -f backend/src/main/docker/Dockerfile.jvm ./backend
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
+
+      - name: Retag to latest
+        run: docker tag lukacetina/devops-backend:$TAG_NAME lukacetina/devops-backend:latest
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
+
+      - name: Docker push
+        run: docker push lukacetina/devops-frontend:$TAG_NAME && docker push lukacetina/devops-frontend:latest
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
+
 
   FE-build:
     name: FE Build
@@ -180,6 +181,38 @@ jobs:
           timeout-minutes: 5
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FE }}
+    
+  FE-docker-image-delivery:
+    name: FE Docker Image Delivery
+    runs-on: ubuntu-latest
+    needs: [FE-build, FE-static-code-analysis]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+      - name: Generate image tag
+        id: date
+        run: echo "::set-output name=date::$(date +%Y%m%d-%H%M%S)"
+      - name: Docker build
+        run: docker build -t lukacetina/devops-frontend:$TAG_NAME -f frontend/Dockerfile ./frontend
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
+      - name: Retag to latest
+        run: docker tag lukacetina/devops-frontend:$TAG_NAME lukacetina/devops-frontend:latest
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
+      - name: Docker push
+        run: docker push lukacetina/devops-frontend:$TAG_NAME && docker push lukacetina/devops-frontend:latest
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
           
   #cypress:
   #  name: Functional Tests
