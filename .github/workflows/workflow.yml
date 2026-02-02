@@ -244,7 +244,8 @@ jobs:
             
       - name: Start backend
         run: |
-          ./mvnw quarkus:dev &
+          chmod +x ./mvnw
+          ./mvnw quarkus:dev -Dquarkus.datasource.reactive.url=vertx-reactive:postgresql://localhost:5432/measdb &
         working-directory: backend
 
       - name: Wait for Quarkus Server to be Ready
