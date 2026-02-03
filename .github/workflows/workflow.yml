@@ -87,7 +87,7 @@ jobs:
   BE-docker-image-delivery:
     name: BE Docker Image Delivery
     runs-on: ubuntu-latest
-    needs: [BE-build-test-package, BE-static-code-analysis]
+    needs: [BE-static-code-analysis]
 
     steps:
       - uses: actions/checkout@v3
@@ -162,7 +162,7 @@ jobs:
   FE-static-code-analysis:
       name: FE SonarQube Analysis
       runs-on: ubuntu-latest
-      needs: [FE-build]
+      needs: [cypress]
     
       steps:
         - uses: actions/checkout@v4
@@ -178,7 +178,7 @@ jobs:
   FE-docker-image-delivery:
     name: FE Docker Image Delivery
     runs-on: ubuntu-latest
-    needs: [FE-build]
+    needs: [FE-static-code-analysis]
 
     steps:
       - uses: actions/checkout@v3
