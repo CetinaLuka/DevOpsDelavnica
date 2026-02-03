@@ -36,7 +36,7 @@ services:
             - app-network
 
     frontend:
-        image: lukacetina/devops-frontend
+        image: lukacetina/devops-frontend:prod
         restart: unless-stopped
         ports:
             - 3000:80
