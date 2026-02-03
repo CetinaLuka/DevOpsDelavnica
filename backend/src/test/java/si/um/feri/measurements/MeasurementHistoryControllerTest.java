@@ -2,7 +2,9 @@ package si.um.feri.measurements;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.vertx.RunOnVertxContext;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import si.um.feri.measurements.dao.MeasurementRepository;
@@ -28,6 +30,7 @@ class MeasurementHistoryControllerTest {
     MeasurementRepository measurementRepository;
 
     @Test
+    @RunOnVertxContext
     void getHistory_returnsMappedDtos() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(1L, "P1", 12.0, -3.0));
         product.setId(1L);
@@ -45,7 +48,9 @@ class MeasurementHistoryControllerTest {
         when(measurementRepository.findByCreatedGreaterThan(any(LocalDateTime.class)))
                 .thenReturn(Uni.createFrom().item(List.of(m1, m2)));
 
-        List<si.um.feri.measurements.dto.Measurement> result = controller.getHistory().await().indefinitely();
+        UniAssertSubscriber<List<si.um.feri.measurements.dto.Measurement>> subscriber = controller.getHistory()
+            .subscribe().withSubscriber(UniAssertSubscriber.create());
+        List<si.um.feri.measurements.dto.Measurement> result = subscriber.awaitItem().getItem();
 
         assertEquals(2, result.size());
         assertEquals(100L, result.get(0).id());

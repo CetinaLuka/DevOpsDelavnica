@@ -2,7 +2,9 @@ package si.um.feri.measurements;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.vertx.RunOnVertxContext;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -33,6 +35,7 @@ class MeasurementControllerTest {
     ProductRepository productRepository;
 
     @Test
+        @RunOnVertxContext
     void addMeasurement_okWithinRange() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(1L, "P1", 10.0, 0.0));
         product.setId(1L);
@@ -41,9 +44,10 @@ class MeasurementControllerTest {
         when(measurementRepository.persistAndFlush(any(Measurement.class)))
                 .thenAnswer(invocation -> Uni.createFrom().item(invocation.getArgument(0)));
 
-        RestResponse<PostMeasurementResponse> response = controller
+        UniAssertSubscriber<RestResponse<PostMeasurementResponse>> subscriber = controller
                 .addMeasurement(new PostMeasurement(1L, 5.0))
-                .await().indefinitely();
+                .subscribe().withSubscriber(UniAssertSubscriber.create());
+        RestResponse<PostMeasurementResponse> response = subscriber.awaitItem().getItem();
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
@@ -55,6 +59,7 @@ class MeasurementControllerTest {
     }
 
     @Test
+        @RunOnVertxContext
     void addMeasurement_notOkOutOfRange() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(2L, "P2", 10.0, 0.0));
         product.setId(2L);
@@ -63,9 +68,10 @@ class MeasurementControllerTest {
         when(measurementRepository.persistAndFlush(any(Measurement.class)))
                 .thenAnswer(invocation -> Uni.createFrom().item(invocation.getArgument(0)));
 
-        RestResponse<PostMeasurementResponse> response = controller
+        UniAssertSubscriber<RestResponse<PostMeasurementResponse>> subscriber = controller
                 .addMeasurement(new PostMeasurement(2L, -1.0))
-                .await().indefinitely();
+                .subscribe().withSubscriber(UniAssertSubscriber.create());
+        RestResponse<PostMeasurementResponse> response = subscriber.awaitItem().getItem();
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
@@ -77,13 +83,15 @@ class MeasurementControllerTest {
     }
 
     @Test
+    @RunOnVertxContext
     void addMeasurement_productNotFound() {
         when(productRepository.findById(99L))
                 .thenReturn(Uni.createFrom().failure(new RuntimeException("not found")));
 
-        RestResponse<PostMeasurementResponse> response = controller
+        UniAssertSubscriber<RestResponse<PostMeasurementResponse>> subscriber = controller
                 .addMeasurement(new PostMeasurement(99L, 1.0))
-                .await().indefinitely();
+                .subscribe().withSubscriber(UniAssertSubscriber.create());
+        RestResponse<PostMeasurementResponse> response = subscriber.awaitItem().getItem();
 
         assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
