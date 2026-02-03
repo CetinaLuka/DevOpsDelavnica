@@ -44,17 +44,10 @@ To stop all services:
 docker compose down
 ```
 
-## Running Backend
-- build & run *or*
-- docker-compose build & docker-compose up
+## Running Backend (standalone)
 
-Then check: http://127.0.0.1:8280/api/v1/swagger-ui/
+For running only the backend service, see instructions in the _backend_ folder.
 
-For details check _backend_ folder.
+## Running Frontend (standalone)
 
-## Running Frontend
-- npm install & npm run *or*
-- `docker run -d -p 3000:80 <image_name>`
-
-
-For details check _frontend_ folder.
+For running only the frontend service, see instructions in the _frontend_ folder.

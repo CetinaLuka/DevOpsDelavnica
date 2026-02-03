@@ -14,6 +14,11 @@ services:
         restart: unless-stopped
         networks:
             - app-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
     backend:
         build:
@@ -27,7 +32,8 @@ services:
             - QUARKUS_DATASOURCE_USERNAME=postgres
             - QUARKUS_DATASOURCE_PASSWORD=postgres
         depends_on:
-            - database
+            database:
+                condition: service_healthy
         networks:
             - app-network
 
