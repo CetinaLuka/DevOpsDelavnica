@@ -212,6 +212,7 @@ jobs:
         env:
           TAG_NAME: CD-${{ steps.date.outputs.date }}
       - name: Restore dev .env
+        if: always()
         run: mv frontend/.env.dev frontend/.env
       - name: Login to DockerHub
         uses: docker/login-action@v3
@@ -219,7 +220,11 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASS }}
       - name: Docker push
-        run: docker push lukacetina/devops-frontend:$TAG_NAME && docker push lukacetina/devops-frontend:latest && docker push lukacetina/devops-frontend:$TAG_NAME-prod && docker push lukacetina/devops-frontend:prod
+        run: |
+          docker push lukacetina/devops-frontend:$TAG_NAME
+          docker push lukacetina/devops-frontend:latest
+          docker push lukacetina/devops-frontend:$TAG_NAME-prod
+          docker push lukacetina/devops-frontend:prod
         env:
           TAG_NAME: CD-${{ steps.date.outputs.date }}
           
