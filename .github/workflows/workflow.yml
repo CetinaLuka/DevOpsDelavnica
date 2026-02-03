@@ -81,7 +81,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CetinaLuka_DevOpsDelavnica_d85aa944-01ca-434e-9066-e9856bbbefda -Dsonar.projectName='DevOpsDelavnica' -DskipTests=true
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CetinaLuka_DevOpsDelavnica_f3fcd72f-88d9-4855-a3e7-9b42e8da5bef -Dsonar.projectName='DevOpsDelavnica' -DskipTests=true
         working-directory: backend/
 
   BE-docker-image-delivery:
@@ -292,7 +292,7 @@ jobs:
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
           
           wait-on: 'http://localhost:3000'
-          record: false
+          record: true
           parallel: true
         #env:
         #  CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
