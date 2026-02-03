@@ -294,8 +294,8 @@ jobs:
           wait-on: 'http://localhost:3000'
           record: true
           parallel: true
-        #env:
-        #  CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
   #        # you can also add a GitHub secret
 
  
