@@ -18,7 +18,7 @@ services:
     backend:
         build:
             context: ./backend
-            dockerfile: Dockerfile
+            dockerfile: src/main/docker/Dockerfile.jvm
         restart: unless-stopped
         ports:
             - 8280:8280

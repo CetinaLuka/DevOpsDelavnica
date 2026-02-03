@@ -17,6 +17,33 @@ Content:
 - When recorded, **measurements are marked** as OK (inside allowed temperature range) or NOT OK,
 - **Measurements history** for last 10 days is available via REST endpoint.
 
+## Running with Docker Compose (All Services)
+
+To run the entire application stack (database, backend, and frontend) with Docker Compose:
+
+1. Build the backend first (required for the Docker image):
+```bash
+cd backend
+./mvnw package -DskipTests
+cd ..
+```
+
+2. Build and run all services:
+```bash
+docker compose build
+docker compose up
+```
+
+The services will be available at:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8280/api/v1/swagger-ui/
+- **Database**: localhost:5432
+
+To stop all services:
+```bash
+docker compose down
+```
+
 ## Running Backend
 - build & run *or*
 - docker-compose build & docker-compose up
