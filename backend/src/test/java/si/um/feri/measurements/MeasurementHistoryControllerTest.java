@@ -1,18 +1,16 @@
 package si.um.feri.measurements;
 
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import si.um.feri.measurements.dao.MeasurementRepository;
 import si.um.feri.measurements.dto.post.PostMeasurement;
 import si.um.feri.measurements.rest.MeasurementHistoryController;
 import si.um.feri.measurements.vao.Measurement;
 import si.um.feri.measurements.vao.Product;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,29 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@QuarkusTest
 class MeasurementHistoryControllerTest {
 
+    @Inject
     MeasurementHistoryController controller;
 
-    @Mock
+    @InjectMock
     MeasurementRepository measurementRepository;
-
-    @BeforeEach
-    void setUp() {
-        controller = new MeasurementHistoryController();
-        setField(controller, "measurementRepository", measurementRepository);
-    }
-
-    private static void setField(Object target, String fieldName, Object value) {
-        try {
-            Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalStateException("Failed to set field: " + fieldName, e);
-        }
-    }
 
     @Test
     void getHistory_returnsMappedDtos() {

@@ -1,14 +1,13 @@
 package si.um.feri.measurements;
 
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import si.um.feri.measurements.dao.MeasurementRepository;
 import si.um.feri.measurements.dao.ProductRepository;
 import si.um.feri.measurements.dto.post.PostMeasurement;
@@ -17,38 +16,21 @@ import si.um.feri.measurements.rest.MeasurementController;
 import si.um.feri.measurements.vao.Measurement;
 import si.um.feri.measurements.vao.Product;
 
-import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@QuarkusTest
 class MeasurementControllerTest {
 
+    @Inject
     MeasurementController controller;
 
-    @Mock
+    @InjectMock
     MeasurementRepository measurementRepository;
 
-    @Mock
+    @InjectMock
     ProductRepository productRepository;
-
-    @BeforeEach
-    void setUp() {
-        controller = new MeasurementController();
-        setField(controller, "measurementRepository", measurementRepository);
-        setField(controller, "productRepository", productRepository);
-    }
-
-    private static void setField(Object target, String fieldName, Object value) {
-        try {
-            Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalStateException("Failed to set field: " + fieldName, e);
-        }
-    }
 
     @Test
     void addMeasurement_okWithinRange() {
