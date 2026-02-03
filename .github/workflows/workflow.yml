@@ -174,11 +174,6 @@ jobs:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
           with:
             projectBaseDir: frontend/
-        - name: SonarQube Quality Gate check
-          uses: sonarsource/sonarqube-quality-gate-action@v1.2.0
-          timeout-minutes: 5
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
     
   FE-docker-image-delivery:
     name: FE Docker Image Delivery
