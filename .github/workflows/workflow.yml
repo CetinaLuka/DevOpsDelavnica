@@ -189,7 +189,7 @@ jobs:
       - name: Generate image tag
         id: date
         run: echo "::set-output name=date::$(date +%Y%m%d-%H%M%S)"
-      - name: Docker build
+      - name: Docker build (dev)
         run: docker build -t lukacetina/devops-frontend:$TAG_NAME -f frontend/Dockerfile ./frontend
         env:
           TAG_NAME: CD-${{ steps.date.outputs.date }}
@@ -197,13 +197,29 @@ jobs:
         run: docker tag lukacetina/devops-frontend:$TAG_NAME lukacetina/devops-frontend:latest
         env:
           TAG_NAME: CD-${{ steps.date.outputs.date }}
+      - name: Create production .env
+        run: echo "REACT_APP_BACKEND_URL=/api/v1" > frontend/.env.production
+      - name: Backup dev .env and use production .env
+        run: |
+          mv frontend/.env frontend/.env.dev
+          mv frontend/.env.production frontend/.env
+      - name: Docker build (prod)
+        run: docker build -t lukacetina/devops-frontend:$TAG_NAME-prod -f frontend/Dockerfile ./frontend
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
+      - name: Retag to prod
+        run: docker tag lukacetina/devops-frontend:$TAG_NAME-prod lukacetina/devops-frontend:prod
+        env:
+          TAG_NAME: CD-${{ steps.date.outputs.date }}
+      - name: Restore dev .env
+        run: mv frontend/.env.dev frontend/.env
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASS }}
       - name: Docker push
-        run: docker push lukacetina/devops-frontend:$TAG_NAME && docker push lukacetina/devops-frontend:latest
+        run: docker push lukacetina/devops-frontend:$TAG_NAME && docker push lukacetina/devops-frontend:latest && docker push lukacetina/devops-frontend:$TAG_NAME-prod && docker push lukacetina/devops-frontend:prod
         env:
           TAG_NAME: CD-${{ steps.date.outputs.date }}
           
