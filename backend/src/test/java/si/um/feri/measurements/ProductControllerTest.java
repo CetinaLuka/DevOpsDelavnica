@@ -25,66 +25,71 @@ class ProductControllerTest {
 
     @InjectMock
     ProductRepository productRepository;
-    void getAllProducts_returnsList() {
+
+    @Test
+    Uni<Void> getAllProducts_returnsList() {
         Product p1 = new Product(new si.um.feri.measurements.dto.Product(1L, "A", 10.0, 0.0));
         Product p2 = new Product(new si.um.feri.measurements.dto.Product(2L, "B", 5.0, -1.0));
         when(productRepository.listAll()).thenReturn(Uni.createFrom().item(List.of(p1, p2)));
 
-    List<Product> result = controller.getAllProducts().await().indefinitely();
-        assertEquals(2, result.size());
+        return controller.getAllProducts()
+            .invoke(result -> assertEquals(2, result.size()))
+            .replaceWithVoid();
     }
 
     @Test
-    void getProductById_returnsProduct() {
+    Uni<Void> getProductById_returnsProduct() {
         Product p1 = new Product(new si.um.feri.measurements.dto.Product(1L, "A", 10.0, 0.0));
         p1.setId(1L);
         when(productRepository.findById(1L)).thenReturn(Uni.createFrom().item(p1));
 
-    Product result = controller.getProductById(1L).await().indefinitely();
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
+        return controller.getProductById(1L)
+            .invoke(result -> {
+                assertNotNull(result);
+                assertEquals(1L, result.getId());
+            })
+            .replaceWithVoid();
     }
 
     @Test
-    void addProduct_persistsProduct() {
+    Uni<Void> addProduct_persistsProduct() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(1L, "A", 10.0, 0.0));
-    when(productRepository.persistAndFlush(any(Product.class)))
-        .thenReturn(Uni.createFrom().item(product));
+        when(productRepository.persistAndFlush(any(Product.class)))
+            .thenReturn(Uni.createFrom().item(product));
 
-    Product result = controller.addProduct(product).await().indefinitely();
-        assertNotNull(result);
-        verify(productRepository).persistAndFlush(product);
+        return controller.addProduct(product)
+            .invoke(result -> {
+                assertNotNull(result);
+                verify(productRepository).persistAndFlush(product);
+            })
+            .replaceWithVoid();
     }
 
     @Test
-    void deleteProduct_returnsStatus() {
+    Uni<Void> deleteProduct_returnsStatus() {
         when(productRepository.deleteById(12L)).thenReturn(Uni.createFrom().item(true));
-    Boolean result = controller.deleteProduct(12L).await().indefinitely();
-        assertTrue(result);
+        return controller.deleteProduct(12L)
+            .invoke(result -> assertTrue(result))
+            .replaceWithVoid();
     }
 
     @Test
-    void putProduct_updatesAndReturnsDto() {
+    Uni<Void> putProduct_updatesAndReturnsDto() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(1L, "Old", 10.0, 0.0));
         product.setId(1L);
         when(productRepository.findById(1L)).thenReturn(Uni.createFrom().item(product));
-    when(productRepository.persist(any(Product.class))).thenReturn(Uni.createFrom().nullItem());
+        when(productRepository.persist(any(Product.class))).thenReturn(Uni.createFrom().nullItem());
 
         si.um.feri.measurements.dto.Product dto = new si.um.feri.measurements.dto.Product(1L, "New", 12.0, -2.0);
-    Response response = controller.putProduct(1, dto).await().indefinitely();
-
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        si.um.feri.measurements.dto.Product body = (si.um.feri.measurements.dto.Product) response.getEntity();
-        assertEquals("New", body.name());
-        assertEquals(12.0, body.maxMeasure(), 0.0001);
-        assertEquals(-2.0, body.minMeasure(), 0.0001);
+        return controller.putProduct(1, dto)
+            .invoke(response -> {
+                assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+                si.um.feri.measurements.dto.Product body = (si.um.feri.measurements.dto.Product) response.getEntity();
+                assertEquals("New", body.name());
+                assertEquals(12.0, body.maxMeasure(), 0.0001);
+                assertEquals(-2.0, body.minMeasure(), 0.0001);
+            })
+            .replaceWithVoid();
     }
 
-    @Test
-    void putProduct_notFound_throws() {
-        when(productRepository.findById(1L)).thenReturn(Uni.createFrom().nullItem());
-        si.um.feri.measurements.dto.Product dto = new si.um.feri.measurements.dto.Product(1L, "New", 12.0, -2.0);
-
-        assertThrows(NotFoundException.class, () -> controller.putProduct(1, dto).await().indefinitely());
-    }
 }

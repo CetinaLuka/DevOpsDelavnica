@@ -28,7 +28,7 @@ class MeasurementHistoryControllerTest {
     MeasurementRepository measurementRepository;
 
     @Test
-    void getHistory_returnsMappedDtos() {
+    Uni<Void> getHistory_returnsMappedDtos() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(1L, "P1", 12.0, -3.0));
         product.setId(1L);
 
@@ -45,13 +45,15 @@ class MeasurementHistoryControllerTest {
         when(measurementRepository.findByCreatedGreaterThan(any(LocalDateTime.class)))
                 .thenReturn(Uni.createFrom().item(List.of(m1, m2)));
 
-        List<si.um.feri.measurements.dto.Measurement> result = controller.getHistory().await().indefinitely();
-
-        assertEquals(2, result.size());
-        assertEquals(100L, result.get(0).id());
-        assertEquals(1L, result.get(0).productId());
-        assertEquals(2.5, result.get(0).avgTemperature(), 0.0001);
-        assertTrue(result.get(0).isOk());
-        assertFalse(result.get(1).isOk());
+        return controller.getHistory()
+            .invoke(result -> {
+                assertEquals(2, result.size());
+                assertEquals(100L, result.get(0).id());
+                assertEquals(1L, result.get(0).productId());
+                assertEquals(2.5, result.get(0).avgTemperature(), 0.0001);
+                assertTrue(result.get(0).isOk());
+                assertFalse(result.get(1).isOk());
+            })
+            .replaceWithVoid();
     }
 }

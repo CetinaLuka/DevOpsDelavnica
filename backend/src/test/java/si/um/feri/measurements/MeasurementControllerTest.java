@@ -33,7 +33,7 @@ class MeasurementControllerTest {
     ProductRepository productRepository;
 
     @Test
-    void addMeasurement_okWithinRange() {
+    Uni<Void> addMeasurement_okWithinRange() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(1L, "P1", 10.0, 0.0));
         product.setId(1L);
 
@@ -41,21 +41,21 @@ class MeasurementControllerTest {
         when(measurementRepository.persistAndFlush(any(Measurement.class)))
                 .thenAnswer(invocation -> Uni.createFrom().item(invocation.getArgument(0)));
 
-        RestResponse<PostMeasurementResponse> response = controller
-            .addMeasurement(new PostMeasurement(1L, 5.0))
-            .await().indefinitely();
+        return controller.addMeasurement(new PostMeasurement(1L, 5.0))
+            .invoke(response -> {
+                assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+                assertNotNull(response.getEntity());
+                assertEquals("ok", response.getEntity().result());
 
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertNotNull(response.getEntity());
-        assertEquals("ok", response.getEntity().result());
-
-        ArgumentCaptor<Measurement> captor = ArgumentCaptor.forClass(Measurement.class);
-        verify(measurementRepository).persistAndFlush(captor.capture());
-        assertTrue(captor.getValue().isOk());
+                ArgumentCaptor<Measurement> captor = ArgumentCaptor.forClass(Measurement.class);
+                verify(measurementRepository).persistAndFlush(captor.capture());
+                assertTrue(captor.getValue().isOk());
+            })
+            .replaceWithVoid();
     }
 
     @Test
-    void addMeasurement_notOkOutOfRange() {
+    Uni<Void> addMeasurement_notOkOutOfRange() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(2L, "P2", 10.0, 0.0));
         product.setId(2L);
 
@@ -63,31 +63,31 @@ class MeasurementControllerTest {
         when(measurementRepository.persistAndFlush(any(Measurement.class)))
                 .thenAnswer(invocation -> Uni.createFrom().item(invocation.getArgument(0)));
 
-        RestResponse<PostMeasurementResponse> response = controller
-            .addMeasurement(new PostMeasurement(2L, -1.0))
-            .await().indefinitely();
+        return controller.addMeasurement(new PostMeasurement(2L, -1.0))
+            .invoke(response -> {
+                assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+                assertNotNull(response.getEntity());
+                assertEquals("not ok", response.getEntity().result());
 
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertNotNull(response.getEntity());
-        assertEquals("not ok", response.getEntity().result());
-
-        ArgumentCaptor<Measurement> captor = ArgumentCaptor.forClass(Measurement.class);
-        verify(measurementRepository).persistAndFlush(captor.capture());
-        assertFalse(captor.getValue().isOk());
+                ArgumentCaptor<Measurement> captor = ArgumentCaptor.forClass(Measurement.class);
+                verify(measurementRepository).persistAndFlush(captor.capture());
+                assertFalse(captor.getValue().isOk());
+            })
+            .replaceWithVoid();
     }
 
     @Test
-    void addMeasurement_productNotFound() {
+    Uni<Void> addMeasurement_productNotFound() {
         when(productRepository.findById(99L))
                 .thenReturn(Uni.createFrom().failure(new RuntimeException("not found")));
 
-        RestResponse<PostMeasurementResponse> response = controller
-            .addMeasurement(new PostMeasurement(99L, 1.0))
-            .await().indefinitely();
-
-        assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
-        assertNotNull(response.getEntity());
-        assertEquals("product-not-found", response.getEntity().result());
-        verifyNoInteractions(measurementRepository);
+        return controller.addMeasurement(new PostMeasurement(99L, 1.0))
+            .invoke(response -> {
+                assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
+                assertNotNull(response.getEntity());
+                assertEquals("product-not-found", response.getEntity().result());
+                verifyNoInteractions(measurementRepository);
+            })
+            .replaceWithVoid();
     }
 }
