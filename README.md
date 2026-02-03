@@ -1,4 +1,4 @@
-# DevOps delavnica Demo
+# DevOps delavnica Demo 
 
 Content:
 - Quarkus backend 
