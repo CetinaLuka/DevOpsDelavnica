@@ -118,7 +118,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASS }}
 
       - name: Docker push
-        run: docker push lukacetina/devops-frontend:$TAG_NAME && docker push lukacetina/devops-frontend:latest
+        run: docker push lukacetina/devops-backend:$TAG_NAME && docker push lukacetina/devops-backend:latest
         env:
           TAG_NAME: CD-${{ steps.date.outputs.date }}
 
