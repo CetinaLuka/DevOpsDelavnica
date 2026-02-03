@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosBase = axios.create({
-    baseURL: process.env.REACT_APP_BACKEND_URL,
+    baseURL: process.env.REACT_APP_BACKEND_URL  || "/api/v1",
     timeout: 5000,
     headers: {
         "Content-Type": "application/json",
