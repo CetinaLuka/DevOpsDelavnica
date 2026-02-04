@@ -1,12 +1,15 @@
-name: Nov Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: ["**"]
-  pull:
-    branches: [**]
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
 
-  jobs:
+jobs:
     hello:
-      - name: Hello jobs
-        run: echo "Hello"
+      name: Hello jobs
+      runs-on: ubuntu-latest
+
+      steps:
+        - run: echo "Hello"
