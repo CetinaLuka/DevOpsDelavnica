@@ -340,4 +340,14 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
   #        # you can also add a GitHub secret
 
+  deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deploy via Webhook
+        uses: newarifrh/portainer-service-webhook@v1
+        with:
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
+    
+
  
