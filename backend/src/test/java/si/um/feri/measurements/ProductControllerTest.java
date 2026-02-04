@@ -37,7 +37,7 @@ class ProductControllerTest {
             .replaceWithVoid();
     }
 
-    /*@Test
+    @Test
     Uni<Void> getProductById_returnsProduct() {
         Product p1 = new Product(new si.um.feri.measurements.dto.Product(1L, "A", 10.0, 0.0));
         p1.setId(1L);
@@ -72,7 +72,7 @@ class ProductControllerTest {
             .invoke(result -> assertTrue(result))
             .replaceWithVoid();
     }
-    */
+    
     @Test
     Uni<Void> putProduct_updatesAndReturnsDto() {
         Product product = new Product(new si.um.feri.measurements.dto.Product(1L, "Old", 10.0, 0.0));
