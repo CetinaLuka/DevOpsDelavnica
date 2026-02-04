@@ -334,20 +334,54 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
+      
       - name: Deploy with Docker Compose
         run: |
           echo "Pulling latest images..."
           docker compose pull
           echo "Starting services..."
           docker compose up -d
-          echo "Deployment completed successfully!"
       
       - name: Verify deployment
         run: |
           echo "Waiting for services to be ready..."
-          sleep 10
-          echo "Checking backend health..."
-          curl -f http://localhost:8280/api/v1/history || echo "Backend check failed"
-          echo "Checking frontend..."
-          curl -f http://localhost:3000 || echo "Frontend check failed"
+          max_attempts=30
+          attempt=0
+          
+          # Wait for backend
+          until curl -sf http://localhost:8280/api/v1/history > /dev/null || [ $attempt -eq $max_attempts ]; do
+            echo "Waiting for backend to be ready... (attempt $((attempt+1))/$max_attempts)"
+            sleep 5
+            attempt=$((attempt+1))
+          done
+          
+          if [ $attempt -eq $max_attempts ]; then
+            echo "Backend failed to start within timeout"
+            docker compose logs backend
+            exit 1
+          fi
+          
+          echo "Backend is ready!"
+          
+          # Wait for frontend
+          attempt=0
+          until curl -sf http://localhost:3000 > /dev/null || [ $attempt -eq $max_attempts ]; do
+            echo "Waiting for frontend to be ready... (attempt $((attempt+1))/$max_attempts)"
+            sleep 5
+            attempt=$((attempt+1))
+          done
+          
+          if [ $attempt -eq $max_attempts ]; then
+            echo "Frontend failed to start within timeout"
+            docker compose logs frontend
+            exit 1
+          fi
+          
+          echo "Frontend is ready!"
+          echo "Deployment completed and verified successfully!"
  
