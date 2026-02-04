@@ -26,7 +26,7 @@ function Navbar() {
     };
 
     return (
-        <AppBar position="static" sx={{ backgroundColor: '#2e7d32' }}>
+        <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -44,7 +44,7 @@ function Navbar() {
                             textDecoration: 'none',
                         }}
                     >
-                        Measurements app
+                        Measurements app DevOps
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
