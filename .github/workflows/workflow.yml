@@ -51,6 +51,21 @@ jobs:
     name: BE SonarQube Analysis
     runs-on: ubuntu-latest
     needs: [BE-build-test-package]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: measdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
   
     steps:
       - name: Checkout repository
@@ -81,7 +96,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CetinaLuka_DevOpsDelavnica_f3fcd72f-88d9-4855-a3e7-9b42e8da5bef -Dsonar.projectName='DevOpsDelavnica' -Dsonar.qualitygate.wait=true -DskipTests=true
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=CetinaLuka_DevOpsDelavnica_f3fcd72f-88d9-4855-a3e7-9b42e8da5bef -Dsonar.projectName='DevOpsDelavnica' -Dsonar.qualitygate.wait=true -Dquarkus.datasource.reactive.url=vertx-reactive:postgresql://localhost:5432/measdb
         working-directory: backend/
 
   BE-docker-image-delivery:
