@@ -1,0 +1,12 @@
+name: Nov Pipeline
+
+on:
+  push:
+    branches: ["**"]
+  pull:
+    branches: [**]
+
+  jobs:
+    hello:
+      - name: Hello jobs
+        run: echo "Hello"
