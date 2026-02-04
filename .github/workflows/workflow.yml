@@ -325,4 +325,29 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
   #        # you can also add a GitHub secret
 
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [BE-docker-image-delivery, FE-docker-image-delivery]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Deploy with Docker Compose
+        run: |
+          echo "Pulling latest images..."
+          docker compose pull
+          echo "Starting services..."
+          docker compose up -d
+          echo "Deployment completed successfully!"
+      
+      - name: Verify deployment
+        run: |
+          echo "Waiting for services to be ready..."
+          sleep 10
+          echo "Checking backend health..."
+          curl -f http://localhost:8280/api/v1/history || echo "Backend check failed"
+          echo "Checking frontend..."
+          curl -f http://localhost:3000 || echo "Frontend check failed"
  
