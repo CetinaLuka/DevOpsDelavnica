@@ -10,6 +10,5 @@ public final class DemoSonarSecurityTrigger {
     }
 
     // Intentional demo string for Sonar detection (hardcoded credential rule).
-    public static final String DEMO_ADMIN_PASSWORD = "demo-admin-123";
-    public static final String DEMO_ADMIN_token = "sdkjfkjdsfhkasj";
+    // public static final String DEMO_ADMIN_PASSWORD = "demo-admin-123";
 }
